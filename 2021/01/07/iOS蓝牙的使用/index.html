@@ -79,14 +79,14 @@
 
 
 
-<meta name="description" content="近年来一直做IOT项目，所以总是会涉及到设备和app之间的通讯。蓝牙作为短距离无线通讯的佼佼者无疑是很好的选择。为了能更好的理解和应用蓝牙技术。所以写一篇文章对近期项目蓝牙相关做一个总结，也分享给各位小伙伴避免踩坑">
+<meta name="description" content="近年来一直做IoT项目，所以总是会涉及到设备和app之间的通讯。蓝牙作为短距离无线通讯的佼佼者无疑是很好的选择。为了能更好的理解和应用蓝牙技术。写一篇文章对近期项目蓝牙相关做一个总结，也分享给各位小伙伴避免踩坑">
 <meta property="og:type" content="article">
 <meta property="og:title" content="iOS蓝牙的使用">
 <meta property="og:url" content="https://andy126.github.io/myblog/child/2021/01/07/iOS%E8%93%9D%E7%89%99%E7%9A%84%E4%BD%BF%E7%94%A8/index.html">
 <meta property="og:site_name" content="航の博客">
-<meta property="og:description" content="近年来一直做IOT项目，所以总是会涉及到设备和app之间的通讯。蓝牙作为短距离无线通讯的佼佼者无疑是很好的选择。为了能更好的理解和应用蓝牙技术。所以写一篇文章对近期项目蓝牙相关做一个总结，也分享给各位小伙伴避免踩坑">
+<meta property="og:description" content="近年来一直做IoT项目，所以总是会涉及到设备和app之间的通讯。蓝牙作为短距离无线通讯的佼佼者无疑是很好的选择。为了能更好的理解和应用蓝牙技术。写一篇文章对近期项目蓝牙相关做一个总结，也分享给各位小伙伴避免踩坑">
 <meta property="article:published_time" content="2021-01-07T11:37:06.000Z">
-<meta property="article:modified_time" content="2021-01-07T11:37:26.511Z">
+<meta property="article:modified_time" content="2021-01-20T11:51:59.910Z">
 <meta property="article:author" content="Andy_Ke">
 <meta name="twitter:card" content="summary">
 
@@ -328,7 +328,19 @@
       
 
       
-        <p>近年来一直做IOT项目，所以总是会涉及到设备和app之间的通讯。蓝牙作为短距离无线通讯的佼佼者无疑是很好的选择。为了能更好的理解和应用蓝牙技术。所以写一篇文章对近期项目蓝牙相关做一个总结，也分享给各位小伙伴避免踩坑</p>
+        <p>  近年来一直做IoT项目，所以总是会涉及到设备和app之间的通讯。蓝牙作为短距离无线通讯的佼佼者无疑是很好的选择。为了能更好的理解和应用蓝牙技术。写一篇文章对近期项目蓝牙相关做一个总结，也分享给各位小伙伴避免踩坑<br>  <a id="more"></a><br>在项目中我使用的是babyblueTooth框架，其实使用这个框架有利也有弊，这框架使用了block的方法，在一定程度上使得你的代码看起来更加紧凑可读性更强，也使用了链式语法的形式让写法比较清爽。但是个人感觉如果刚开始做蓝牙的这一块的同学还是使用官方的CoreBluetooth框架。虽然可能没有babyblueTooth这么方便，但是步骤比较清晰，也可以更好的了解整个蓝牙连接的流程，对于蓝牙连接有清晰的认识这样对于产品后续迭代，bug修改会恒友帮助。</p>
+<h2 id="蓝牙基础介绍："><a href="#蓝牙基础介绍：" class="headerlink" title="蓝牙基础介绍："></a>蓝牙基础介绍：</h2><p>蓝牙框架使用：<br>1.创建实例</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">self.baby = [[BabyBluetooth alloc]init];</span><br></pre></td></tr></table></figure>
+<p>2，扫描设备，baby里面封装了链式语法所以可以很简单调用</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">self.baby.scanForPeripherals().begin();</span><br></pre></td></tr></table></figure>
+<p>3，接下来就是各种对于蓝牙连接状态的各种回调，baby对于回调统一都使用了block方法。下面截取出常用的api展示一下</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line">设备状态改变的block |  when CentralManager state changed</span><br><span class="line">*/</span><br><span class="line">- (void)setBlockOnCentralManagerDidUpdateState:(void (^)(CBCentralManager *central))block;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> 找到Peripherals的block |  when find peripheral</span><br><span class="line"> */</span><br><span class="line">- (void)setBlockOnDiscoverToPeripherals:(void (^)(CBCentralManager *central,CBPeripheral *peripheral,NSDictionary *advertisementData, NSNumber *RSSI))block;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line">连接Peripherals成功的block</span><br><span class="line">|  when connected peripheral </span><br><span class="line">*/</span><br><span class="line">- (void)setBlockOnConnected:(void (^)(CBCentralManager *central,CBPeripheral *peripheral))block;</span><br><span class="line">- </span><br><span class="line">/**</span><br><span class="line">characteristic订阅状态改变的block</span><br><span class="line">|  when characteristic notification state changed </span><br><span class="line">*/</span><br><span class="line">- (void)setBlockOnDidUpdateNotificationStateForCharacteristic:(void (^)(CBCharacteristic *characteristic,NSError *error))block;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line">读取RSSI的委托</span><br><span class="line">|  when did <span class="built_in">read</span> RSSI </span><br><span class="line">*/</span><br><span class="line">- (void)setBlockOnDidReadRSSI:(void (^)(NSNumber *RSSI,NSError *error))block;</span><br></pre></td></tr></table></figure>
+
+<p>3，连接蓝牙之后，如果需要和设备进行通信那么就需要对设备特征值进行保存，特征值有对应的权限。可以和硬件工程师进行沟通，保存对应的特征字和蓝牙设备进行读写通信。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">self.baby.having(peripheral).connectToPeripherals().discoverServices().discoverCharacteristics().readValueForCharacteristic().begin();</span><br></pre></td></tr></table></figure>
+<p>蓝牙使用踩坑：<br>1，对于已经连接的蓝牙设备，直接使用peripheral.name获取蓝牙名称会有缓存。当设备修改蓝牙名称时候。手机经常会识别不到名称或者名称还是原来的。但是ios对于蓝牙设备是不能直接获取到mac的，只能通过蓝牙名称进行连接。所以这个问题经常导致找不到正确的蓝牙设备。可以使用下面方法</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">NSString *localName = [advertisementData objectForKey:@<span class="string">"kCBAdvDataLocalName"</span>];</span><br></pre></td></tr></table></figure>
+<p>2，设备启用啦HID Service，，但其数据通信是走的蓝牙协议。HID Service是用来暴露持有该Service的数据和格式规定的。所以导致app调用蓝牙断开连接指令时候，手机和设备的数据通信已经断开，但是设备蓝牙和手机系统层还是保持连接。（一般蓝牙和手机系统连接时候都需要进行配对，跳出来一个配对弹框，但是这种情况并没有系统配对弹框出现，所以之前一直在找代码问题。。哭泣）</p>
 
       
     </div>
@@ -413,8 +425,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -460,6 +481,22 @@
         </div>
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#蓝牙基础介绍："><span class="nav-number">1.</span> <span class="nav-text">蓝牙基础介绍：</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       
